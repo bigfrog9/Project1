@@ -5,17 +5,23 @@ using UnityEngine.InputSystem;
 
 public class MovePlayer : MonoBehaviour
 {
+    public float maxSpeed = 0;
+    public float speed = 0;
     private Rigidbody rb;
     private float movementX;
     private float movementY;
+    public GameObject Level1End;
+    public GameObject VictoryPoint;
 
     // Start is called before the first frame update
     void Start()
     {
         rb = GetComponent<Rigidbody>();
+
+        Level1End.SetActive(false);
     }
 
-   void OnMove(InputValue movementValue)
+    void OnMove(InputValue movementValue)
     {
         Vector2 movementVector = movementValue.Get<Vector2>();
         movementX = movementVector.x;
@@ -25,7 +31,12 @@ public class MovePlayer : MonoBehaviour
     void FixedUpdate()
     {
         Vector3 movement = new Vector3(movementX, 0.0f, movementY);
-        rb.AddForce(movement);
+        rb.AddForce(movement * speed);
+
+        if (rb.velocity.magnitude > maxSpeed)
+        {
+            rb.velocity=rb.velocity.normalized*maxSpeed*Time.fixedDeltaTime;
+        }
     }
 
     private void OnTriggerEnter(Collider other)
@@ -34,5 +45,12 @@ public class MovePlayer : MonoBehaviour
         {
             transform.position = new Vector3(0, 0, 0);
         }
+
+        if (other.gameObject.CompareTag("Finish"))
+        {
+            Level1End.SetActive(true);
+            VictoryPoint.SetActive(false);
+        }
     }
+
 }
